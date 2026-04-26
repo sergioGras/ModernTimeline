@@ -6,3 +6,4 @@ dev.err
 *.local
 coverage/
 dist/
+pnpm-lock.yaml
