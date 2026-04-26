@@ -1,0 +1,8 @@
+.next/
+node_modules/
+dev.out
+dev.err
+*.log
+*.local
+coverage/
+dist/
