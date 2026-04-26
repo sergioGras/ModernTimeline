@@ -51,44 +51,44 @@ export function getRowDensityConfig(rowHeight: number): RowDensityConfig {
   if (rowHeight >= 170) {
     return {
       mode: "comfortable",
-      chipWidth: 176,
-      chipHeight: 62,
-      clusterWidth: 156,
+      chipWidth: 172,
+      chipHeight: 48,
+      clusterWidth: 148,
       laneLimit: 3,
-      laneOffset: 34,
-      topInset: 18,
-      horizontalGap: 12,
+      laneOffset: 52,
+      topInset: 16,
+      horizontalGap: 14,
       showDate: true,
-      clusterThreshold: 28,
+      clusterThreshold: 36,
     };
   }
 
   if (rowHeight >= 110) {
     return {
       mode: "compact",
-      chipWidth: 154,
-      chipHeight: 54,
-      clusterWidth: 138,
+      chipWidth: 150,
+      chipHeight: 44,
+      clusterWidth: 132,
       laneLimit: 2,
-      laneOffset: 26,
-      topInset: 14,
-      horizontalGap: 10,
+      laneOffset: 48,
+      topInset: 12,
+      horizontalGap: 12,
       showDate: true,
-      clusterThreshold: 24,
+      clusterThreshold: 30,
     };
   }
 
   return {
     mode: "micro",
-    chipWidth: 128,
-    chipHeight: 42,
-    clusterWidth: 112,
+    chipWidth: 126,
+    chipHeight: 38,
+    clusterWidth: 108,
     laneLimit: 1,
-    laneOffset: 20,
-    topInset: 10,
+    laneOffset: 42,
+    topInset: 8,
     horizontalGap: 8,
     showDate: false,
-    clusterThreshold: 18,
+    clusterThreshold: 24,
   };
 }
 

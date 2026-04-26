@@ -23,7 +23,7 @@ export function MilestoneClusterDialog({
     <Dialog
       open={open}
       onClose={onClose}
-      size="md"
+      size="lg"
       title="Milestone cluster"
       description={
         sectionTitle
@@ -37,16 +37,23 @@ export function MilestoneClusterDialog({
             key={milestone.id}
             type="button"
             onClick={() => onSelect(milestone)}
-            className="rounded-[1rem] border border-white/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.8),rgba(247,243,235,0.68))] px-5 py-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.86),0_10px_22px_rgba(15,23,42,0.05)] backdrop-blur-xl transition hover:-translate-y-px hover:border-white/75 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+            className="rounded-[0.95rem] border border-white/72 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(246,243,237,0.8))] px-4 py-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.92),0_10px_20px_rgba(15,23,42,0.05)] backdrop-blur-xl transition hover:-translate-y-px hover:border-[hsl(var(--accent))]/25 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.96),0_14px_24px_rgba(15,23,42,0.07)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
           >
-            <div className="text-sm font-semibold tracking-[-0.02em] text-[hsl(var(--foreground))]">
-              {milestone.title}
-            </div>
-            <div className="mt-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[hsl(var(--accent))]">
-              {formatBoardDate(milestone.date)}
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <div className="truncate text-sm font-semibold tracking-[-0.02em] text-[hsl(var(--foreground))]">
+                  {milestone.title}
+                </div>
+                <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                  {formatBoardDate(milestone.date)}
+                </div>
+              </div>
+              <div className="rounded-full border border-white/75 bg-white/80 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Open
+              </div>
             </div>
             {milestone.description ? (
-              <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{milestone.description}</p>
+              <p className="mt-2 line-clamp-2 text-[13px] leading-6 text-slate-600">{milestone.description}</p>
             ) : null}
           </button>
         ))}

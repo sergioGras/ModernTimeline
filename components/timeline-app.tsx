@@ -9,6 +9,7 @@ import { SectionDialog } from "@/components/section-dialog";
 import { TimelineBoard } from "@/components/timeline-board";
 import { Button } from "@/components/ui/button";
 import type { PositionedCluster } from "@/lib/layout";
+import { getQuarterLabelForIndex, getQuarterTimelineBuckets } from "@/lib/date-utils";
 import { loadBoardData, saveBoardData } from "@/lib/storage";
 import type { BoardData, BoardSettings, Milestone, Section } from "@/lib/types";
 
@@ -25,6 +26,7 @@ export function TimelineApp() {
   const [editingSection, setEditingSection] = useState<Section | null>(null);
   const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
   const [activeCluster, setActiveCluster] = useState<PositionedCluster | null>(null);
+  const [activeQuarterIndex, setActiveQuarterIndex] = useState(0);
 
   useEffect(() => {
     setData(loadBoardData());
@@ -40,6 +42,18 @@ export function TimelineApp() {
     () => [...(data?.sections ?? [])].sort((a, b) => a.order - b.order),
     [data?.sections],
   );
+  const quarterBuckets = useMemo(
+    () => (data?.settings.scale === "quarter" ? getQuarterTimelineBuckets(data.settings) : []),
+    [data?.settings],
+  );
+
+  useEffect(() => {
+    if (!data || data.settings.scale !== "quarter") {
+      return;
+    }
+
+    setActiveQuarterIndex((current) => Math.max(0, Math.min(current, Math.max(quarterBuckets.length - 1, 0))));
+  }, [data, quarterBuckets.length]);
 
   if (!data) {
     return (
@@ -56,6 +70,10 @@ export function TimelineApp() {
   };
 
   const updateScale = (scale: BoardSettings["scale"]) => {
+    if (scale === "quarter") {
+      setActiveQuarterIndex(0);
+    }
+
     setData((current) =>
       current
         ? {
@@ -178,9 +196,18 @@ export function TimelineApp() {
     );
   };
 
+  const isQuarterMode = data.settings.scale === "quarter";
+  const activeQuarterLabel = isQuarterMode ? getQuarterLabelForIndex(data.settings, activeQuarterIndex) : "";
+  const moveQuarter = (direction: "prev" | "next") => {
+    setActiveQuarterIndex((current) => {
+      const nextIndex = direction === "prev" ? current - 1 : current + 1;
+      return Math.max(0, Math.min(nextIndex, Math.max(quarterBuckets.length - 1, 0)));
+    });
+  };
+
   return (
-    <main className="flex h-screen flex-col gap-4 overflow-hidden px-4 py-5 sm:px-6 lg:px-8">
-      <header className="flex min-h-[72px] flex-none items-center border-b border-[hsl(var(--border))]/80 pb-4">
+    <main className="flex h-screen flex-col gap-4 overflow-hidden px-6 py-6 sm:px-8 lg:px-10">
+      <header className="flex min-h-[84px] flex-none items-center border-b border-[hsl(var(--border))]/80 pb-4">
         <div className="flex w-full flex-wrap items-center gap-4">
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="secondary" onClick={() => setSettingsOpen(true)}>
@@ -206,32 +233,60 @@ export function TimelineApp() {
             </Button>
           </div>
 
-          <div className="flex items-center rounded-[1.1rem] border border-white/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(247,243,235,0.58))] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.86),0_10px_22px_rgba(15,23,42,0.06)] backdrop-blur-xl">
-            <button
+          <div className="flex items-center rounded-[1rem] border border-white/68 bg-[linear-gradient(180deg,rgba(255,255,255,0.86),rgba(247,243,235,0.64))] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_10px_22px_rgba(15,23,42,0.06)] backdrop-blur-xl">
+            <Button
               type="button"
               onClick={() => updateScale("month")}
-              className={`rounded-[0.9rem] px-4 py-2 text-sm font-semibold transition ${
-                data.settings.scale === "month"
-                  ? "bg-[linear-gradient(180deg,rgba(93,143,118,0.92),rgba(44,87,67,0.96))] text-[hsl(var(--accent-foreground))] shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_10px_18px_rgba(45,79,63,0.18)]"
-                  : "text-slate-600 hover:bg-white/70"
-              }`}
+              variant={data.settings.scale === "month" ? "primary" : "secondary"}
+              className="h-10 px-4 text-sm"
+              aria-pressed={data.settings.scale === "month"}
             >
               Month
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={() => updateScale("quarter")}
-              className={`rounded-[0.9rem] px-4 py-2 text-sm font-semibold transition ${
-                data.settings.scale === "quarter"
-                  ? "bg-[linear-gradient(180deg,rgba(93,143,118,0.92),rgba(44,87,67,0.96))] text-[hsl(var(--accent-foreground))] shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_10px_18px_rgba(45,79,63,0.18)]"
-                  : "text-slate-600 hover:bg-white/70"
-              }`}
+              variant={data.settings.scale === "quarter" ? "primary" : "secondary"}
+              className="h-10 px-4 text-sm"
+              aria-pressed={data.settings.scale === "quarter"}
             >
               Quarter
-            </button>
+            </Button>
           </div>
 
-          <div className="ml-auto min-w-[190px]">
+          {isQuarterMode ? (
+            <div className="flex items-center rounded-[1rem] border border-white/68 bg-[linear-gradient(180deg,rgba(255,255,255,0.86),rgba(247,243,235,0.64))] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_10px_22px_rgba(15,23,42,0.06)] backdrop-blur-xl">
+              <Button
+                variant="ghost"
+                className="h-10 w-10 px-0"
+                onClick={() => moveQuarter("prev")}
+                disabled={activeQuarterIndex === 0}
+                aria-label="Previous quarter"
+                title="Previous quarter"
+              >
+                <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4">
+                  <path d="M12.75 4.75 7.5 10l5.25 5.25" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+                </svg>
+              </Button>
+              <div className="min-w-[92px] px-3 text-center text-sm font-semibold tracking-[-0.02em] text-[hsl(var(--foreground))]">
+                {activeQuarterLabel || "Quarter"}
+              </div>
+              <Button
+                variant="ghost"
+                className="h-10 w-10 px-0"
+                onClick={() => moveQuarter("next")}
+                disabled={activeQuarterIndex >= Math.max(quarterBuckets.length - 1, 0)}
+                aria-label="Next quarter"
+                title="Next quarter"
+              >
+                <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4">
+                  <path d="M7.25 4.75 12.5 10l-5.25 5.25" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+                </svg>
+              </Button>
+            </div>
+          ) : null}
+
+          <div className="ml-auto min-w-[190px] text-right">
             <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
               Timeline board
             </div>
@@ -261,6 +316,8 @@ export function TimelineApp() {
             onDeleteSection={deleteSection}
             onMoveSectionUp={(sectionId) => moveSection(sectionId, "up")}
             onMoveSectionDown={(sectionId) => moveSection(sectionId, "down")}
+            activeQuarterIndex={activeQuarterIndex}
+            onQuarterIndexChange={setActiveQuarterIndex}
           />
         </div>
       </section>

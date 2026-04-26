@@ -2,12 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { getMinTimelineWidth, getTimeBuckets } from "@/lib/date-utils";
 import {
-  getRowDensityConfig,
-  layoutMilestonesForSection,
-  type PositionedCluster,
-} from "@/lib/layout";
+  getWeekGuidesForBucket,
+  getMinTimelineWidth,
+  getPageIndexFromScrollLeft,
+  getPageScrollLeft,
+  getTimeBuckets,
+} from "@/lib/date-utils";
+import { getRowDensityConfig, layoutMilestonesForSection, type PositionedCluster } from "@/lib/layout";
 import type { BoardData, Milestone, Section } from "@/lib/types";
 import { MilestoneChip } from "@/components/milestone-chip";
 import { MilestoneClusterChip } from "@/components/milestone-cluster-chip";
@@ -15,7 +17,7 @@ import { SectionColumn } from "@/components/section-column";
 import { TimelineHeader } from "@/components/timeline-header";
 import { Button } from "@/components/ui/button";
 
-const LEFT_COLUMN_WIDTH = 236;
+const LEFT_COLUMN_WIDTH = 260;
 const TIMELINE_HEADER_HEIGHT = 78;
 const TIMELINE_SCROLLBAR_HEIGHT = 62;
 
@@ -27,6 +29,8 @@ interface TimelineBoardProps {
   onDeleteSection: (section: Section) => void;
   onMoveSectionUp: (sectionId: string) => void;
   onMoveSectionDown: (sectionId: string) => void;
+  activeQuarterIndex: number;
+  onQuarterIndexChange: (quarterIndex: number) => void;
 }
 
 export function TimelineBoard({
@@ -37,12 +41,15 @@ export function TimelineBoard({
   onDeleteSection,
   onMoveSectionUp,
   onMoveSectionDown,
+  activeQuarterIndex,
+  onQuarterIndexChange,
 }: TimelineBoardProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const scrollbarRef = useRef<HTMLDivElement | null>(null);
   const syncingRef = useRef<"board" | "bar" | null>(null);
-  const [boardHeight, setBoardHeight] = useState(0);
+  const activeQuarterRef = useRef(activeQuarterIndex);
+  const [boardSize, setBoardSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     const node = rootRef.current;
@@ -51,7 +58,10 @@ export function TimelineBoard({
     }
 
     const measure = () => {
-      setBoardHeight(node.clientHeight);
+      setBoardSize({
+        width: node.clientWidth,
+        height: node.clientHeight,
+      });
     };
 
     measure();
@@ -69,45 +79,79 @@ export function TimelineBoard({
     };
   }, []);
 
+  useEffect(() => {
+    activeQuarterRef.current = activeQuarterIndex;
+  }, [activeQuarterIndex]);
+
   const buckets = getTimeBuckets(data.settings);
-  const timelineWidth = getMinTimelineWidth(data.settings.scale, buckets.length);
+  const isQuarterMode = data.settings.scale === "quarter";
+  const timelineViewportWidth = isQuarterMode
+    ? Math.max(boardSize.width > 0 ? boardSize.width - LEFT_COLUMN_WIDTH : 260, 1)
+    : 0;
+  const timelineWidth = isQuarterMode
+    ? timelineViewportWidth * Math.max(buckets.length, 1)
+    : getMinTimelineWidth(data.settings.scale, buckets.length);
   const orderedSections = [...data.sections].sort((a, b) => a.order - b.order);
   const hasMilestones = data.milestones.length > 0;
-  const availableRowsHeight = Math.max(boardHeight - TIMELINE_HEADER_HEIGHT - TIMELINE_SCROLLBAR_HEIGHT, 0);
+  const availableRowsHeight = Math.max(boardSize.height - TIMELINE_HEADER_HEIGHT - TIMELINE_SCROLLBAR_HEIGHT, 0);
   const rowHeight = orderedSections.length > 0 ? availableRowsHeight / orderedSections.length : 0;
   const density = getRowDensityConfig(rowHeight);
 
-  const scrollTimeline = (direction: "left" | "right") => {
-    scrollRef.current?.scrollBy({
-      left: direction === "left" ? -360 : 360,
-      behavior: "smooth",
-    });
-  };
-
-  const syncScroll = (source: "board" | "bar") => {
-    if (syncingRef.current && syncingRef.current !== source) {
+  const syncQuarterIndex = (scrollLeft: number) => {
+    if (!isQuarterMode || timelineViewportWidth <= 0) {
       return;
     }
 
-    syncingRef.current = source;
+    const nextQuarterIndex = getPageIndexFromScrollLeft(scrollLeft, timelineViewportWidth, buckets.length);
+    if (nextQuarterIndex !== activeQuarterRef.current) {
+      activeQuarterRef.current = nextQuarterIndex;
+      onQuarterIndexChange(nextQuarterIndex);
+    }
+  };
+
+  const syncScroll = (source: "board" | "bar") => {
     const board = scrollRef.current;
     const bar = scrollbarRef.current;
-
     if (!board || !bar) {
       syncingRef.current = null;
       return;
     }
 
-    if (source === "board") {
-      bar.scrollLeft = board.scrollLeft;
-    } else {
-      board.scrollLeft = bar.scrollLeft;
+    const scrollLeft = source === "board" ? board.scrollLeft : bar.scrollLeft;
+    const shouldMirror = !(syncingRef.current && syncingRef.current !== source);
+
+    if (shouldMirror) {
+      syncingRef.current = source;
+
+      if (source === "board") {
+        bar.scrollLeft = scrollLeft;
+      } else {
+        board.scrollLeft = scrollLeft;
+      }
+
+      requestAnimationFrame(() => {
+        syncingRef.current = null;
+      });
     }
 
-    requestAnimationFrame(() => {
-      syncingRef.current = null;
-    });
+    syncQuarterIndex(scrollLeft);
   };
+
+  useEffect(() => {
+    if (!isQuarterMode || timelineViewportWidth <= 0) {
+      return;
+    }
+
+    const board = scrollRef.current;
+    if (!board) {
+      return;
+    }
+
+    const nextScrollLeft = getPageScrollLeft(activeQuarterIndex, timelineViewportWidth);
+    if (Math.abs(board.scrollLeft - nextScrollLeft) > 1) {
+      board.scrollTo({ left: nextScrollLeft, behavior: "smooth" });
+    }
+  }, [activeQuarterIndex, isQuarterMode, timelineViewportWidth]);
 
   if (orderedSections.length === 0) {
     return (
@@ -135,11 +179,27 @@ export function TimelineBoard({
     >
       <div
         ref={scrollRef}
-        className="timeline-scroll-hidden h-full overflow-x-auto overflow-y-hidden"
-        onScroll={() => syncScroll("board")}
+        className={`timeline-scroll-hidden h-full overflow-x-auto overflow-y-hidden ${isQuarterMode ? "snap-x snap-mandatory" : ""}`}
+        onScroll={() => {
+          const board = scrollRef.current;
+          if (!board) {
+            return;
+          }
+
+          syncScroll("board");
+        }}
+        style={{
+          scrollSnapType: isQuarterMode ? "x mandatory" : undefined,
+          scrollBehavior: "smooth",
+        }}
       >
         <div style={{ width: timelineWidth + LEFT_COLUMN_WIDTH }}>
-          <TimelineHeader buckets={buckets} timelineWidth={timelineWidth} leftColumnWidth={LEFT_COLUMN_WIDTH} />
+          <TimelineHeader
+            buckets={buckets}
+            timelineWidth={timelineWidth}
+            leftColumnWidth={LEFT_COLUMN_WIDTH}
+            snapToPages={isQuarterMode}
+          />
           <div className="relative">
             {!hasMilestones ? (
               <div
@@ -184,9 +244,22 @@ export function TimelineBoard({
                       {buckets.map((bucket) => (
                         <div
                           key={bucket.key}
-                          className="h-full shrink-0 border-r border-dashed border-[hsl(var(--border))]/70"
-                          style={{ width: timelineWidth / Math.max(buckets.length, 1) }}
-                        />
+                          className="relative h-full shrink-0 border-r border-[hsl(var(--border))]/55"
+                          style={{
+                            width: timelineWidth / Math.max(buckets.length, 1),
+                            scrollSnapAlign: isQuarterMode ? "start" : undefined,
+                          }}
+                        >
+                          {isQuarterMode
+                            ? getWeekGuidesForBucket(bucket).map((guide) => (
+                                <div
+                                  key={guide.key}
+                                  className="absolute top-0 h-full w-px bg-[rgba(82,109,91,0.2)]"
+                                  style={{ left: `${guide.percent}%` }}
+                                />
+                              ))
+                            : null}
+                        </div>
                       ))}
                     </div>
                     <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),transparent)]" />
@@ -218,20 +291,45 @@ export function TimelineBoard({
         </div>
       </div>
       <div
-        className="flex items-center gap-3 border-t border-[hsl(var(--border))]/70 bg-[rgba(252,250,245,0.9)] px-4 py-3 backdrop-blur-xl"
+        className="grid grid-cols-[auto_auto_1fr] items-center gap-3 border-t border-[hsl(var(--border))]/70 bg-[rgba(252,250,245,0.9)] px-6 py-3 backdrop-blur-xl"
         style={{ height: TIMELINE_SCROLLBAR_HEIGHT }}
       >
-        <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Timeline</div>
-        <Button variant="secondary" className="px-3 py-1.5 text-xs" onClick={() => scrollTimeline("left")}>
-          Left
-        </Button>
-        <Button variant="secondary" className="px-3 py-1.5 text-xs" onClick={() => scrollTimeline("right")}>
-          Right
-        </Button>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Scroll</div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            className="h-9 w-9 px-0"
+            onClick={() => scrollRef.current?.scrollBy({ left: -360, behavior: "smooth" })}
+            aria-label="Scroll timeline left"
+            title="Scroll left"
+          >
+            <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4">
+              <path d="M12.75 4.75 7.5 10l5.25 5.25" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+            </svg>
+          </Button>
+          <Button
+            variant="secondary"
+            className="h-9 w-9 px-0"
+            onClick={() => scrollRef.current?.scrollBy({ left: 360, behavior: "smooth" })}
+            aria-label="Scroll timeline right"
+            title="Scroll right"
+          >
+            <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4">
+              <path d="M7.25 4.75 12.5 10l-5.25 5.25" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+            </svg>
+          </Button>
+        </div>
         <div
           ref={scrollbarRef}
           className="timeline-scroll min-w-0 flex-1 overflow-x-scroll overflow-y-hidden"
-          onScroll={() => syncScroll("bar")}
+          onScroll={() => {
+            const bar = scrollbarRef.current;
+            if (!bar) {
+              return;
+            }
+
+            syncScroll("bar");
+          }}
         >
           <div style={{ width: timelineWidth + LEFT_COLUMN_WIDTH, height: 1 }} />
         </div>

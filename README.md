@@ -77,6 +77,7 @@ lib/
 - `lib/layout.ts` handles adaptive density and deterministic cluster-aware placement so dense milestones do not fully overlap.
 - `components/timeline-board.tsx` renders the sticky header, sticky section rail, responsive scroll container, and positioned milestone chips.
 - `docs/project/` records the worklog, task list, decisions, and roadmap so project context survives across sessions.
+- Quarter mode behaves like a paged horizontal navigator with next/previous controls and an active quarter indicator.
 
 ## Product Notes
 
@@ -86,3 +87,4 @@ lib/
 - The visual system stays intentionally calm: one accent color, soft borders, rounded surfaces, and restrained hierarchy.
 - Dense milestone groups collapse into aggregate cluster chips when the row is visually saturated.
 - The board adapts row density to available height so it avoids vertical scrolling.
+- Quarter view fills the available timeline width one quarter at a time and stays synchronized with the scrollbar.

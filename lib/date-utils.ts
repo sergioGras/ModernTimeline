@@ -1,6 +1,7 @@
 import {
   differenceInCalendarDays,
   eachMonthOfInterval,
+  eachWeekOfInterval,
   endOfMonth,
   endOfQuarter,
   format,
@@ -19,6 +20,11 @@ export interface TimeBucket {
   shortLabel: string;
   start: Date;
   end: Date;
+}
+
+export interface WeekGuide {
+  key: string;
+  percent: number;
 }
 
 export function getTimelineBounds(settings: BoardSettings) {
@@ -76,6 +82,10 @@ export function getTimeBuckets(settings: BoardSettings): TimeBucket[] {
   }));
 }
 
+export function getQuarterTimelineBuckets(settings: BoardSettings) {
+  return settings.scale === "quarter" ? getTimeBuckets(settings) : [];
+}
+
 export function formatBoardDate(date: string) {
   return format(parseISO(date), "MMM d, yyyy");
 }
@@ -106,4 +116,33 @@ export function getDatePositionPercent(dateString: string, settings: BoardSettin
 export function getMinTimelineWidth(scale: TimeScale, bucketCount: number) {
   const bucketWidth = scale === "quarter" ? 320 : 240;
   return Math.max(bucketCount * bucketWidth, 1600);
+}
+
+export function getPageScrollLeft(pageIndex: number, pageWidth: number) {
+  return Math.max(0, pageIndex * Math.max(pageWidth, 0));
+}
+
+export function getPageIndexFromScrollLeft(scrollLeft: number, pageWidth: number, pageCount: number) {
+  if (pageWidth <= 0 || pageCount <= 0) {
+    return 0;
+  }
+
+  const nextIndex = Math.round(scrollLeft / pageWidth);
+  return Math.max(0, Math.min(pageCount - 1, nextIndex));
+}
+
+export function getQuarterLabelForIndex(settings: BoardSettings, quarterIndex: number) {
+  const buckets = getQuarterTimelineBuckets(settings);
+  return buckets[quarterIndex]?.label ?? buckets[0]?.label ?? "";
+}
+
+export function getWeekGuidesForBucket(bucket: TimeBucket): WeekGuide[] {
+  const totalDays = Math.max(differenceInCalendarDays(bucket.end, bucket.start), 1);
+
+  return eachWeekOfInterval({ start: bucket.start, end: bucket.end }, { weekStartsOn: 1 })
+    .map((weekStart) => ({
+      key: format(weekStart, "yyyy-MM-dd"),
+      percent: (differenceInCalendarDays(weekStart, bucket.start) / totalDays) * 100,
+    }))
+    .filter((guide) => guide.percent > 0 && guide.percent < 100);
 }

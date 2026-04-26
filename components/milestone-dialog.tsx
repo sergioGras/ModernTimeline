@@ -89,7 +89,7 @@ export function MilestoneDialog({
               </Button>
             ) : null}
           </div>
-          <div className="flex items-center justify-end gap-4 pt-3">
+          <div className="flex items-center justify-end gap-4 pt-4">
             <Button variant="secondary" onClick={onClose}>
               Cancel
             </Button>

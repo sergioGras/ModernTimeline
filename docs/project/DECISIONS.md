@@ -30,6 +30,18 @@
   - `Rationale`: Prevents unreadable overlap when many milestones land near one another.
   - `Status`: Accepted
 
+- `Decision`: Treat quarter mode as a paged horizontal navigator with synchronized scrollbar and active quarter indicator.
+  - `Rationale`: Makes quarter view feel like a true quarter-by-quarter timeline instead of a generic wide grid.
+  - `Status`: Accepted
+
+- `Decision`: Gate the next implementation pass on UI layout polish before more feature work.
+  - `Rationale`: Current usability issues are spatial and visual: section rail margins, dialog close visibility, dialog footer spacing, and grid orientation need to be corrected before adding more behavior.
+  - `Status`: Accepted
+
+- `Decision`: Add week-level guide lines as subtle visual support inside the timeline.
+  - `Rationale`: Quarter pages need finer temporal orientation while preserving the calm roadmap style.
+  - `Status`: Accepted
+
 - `Decision`: Keep project memory in `docs/project/`.
   - `Rationale`: Provides a durable, human-readable record outside chat history.
   - `Status`: Accepted
