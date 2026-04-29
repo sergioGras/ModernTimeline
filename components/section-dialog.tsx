@@ -38,7 +38,7 @@ export function SectionDialog({ open, section, onClose, onSave }: SectionDialogP
       title={section ? "Rename section" : "New section"}
       description="Keep section names short and clear so the left rail stays readable."
       footer={
-        <div className="flex items-center justify-end gap-4">
+        <div className="flex items-center justify-end gap-3">
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>

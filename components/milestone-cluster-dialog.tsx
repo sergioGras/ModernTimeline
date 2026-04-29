@@ -37,19 +37,16 @@ export function MilestoneClusterDialog({
             key={milestone.id}
             type="button"
             onClick={() => onSelect(milestone)}
-            className="rounded-[0.95rem] border border-white/72 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(246,243,237,0.8))] px-4 py-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.92),0_10px_20px_rgba(15,23,42,0.05)] backdrop-blur-xl transition hover:-translate-y-px hover:border-[hsl(var(--accent))]/25 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.96),0_14px_24px_rgba(15,23,42,0.07)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+            className="rounded-[0.95rem] border border-[hsl(var(--border))]/68 bg-[rgba(255,255,255,0.78)] px-4 py-3 text-left shadow-[0_6px_16px_rgba(15,23,42,0.035)] transition hover:-translate-y-px hover:border-[hsl(var(--accent))]/22 hover:bg-[rgba(255,255,255,0.9)] hover:shadow-[0_10px_20px_rgba(15,23,42,0.05)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
           >
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <div className="truncate text-sm font-semibold tracking-[-0.02em] text-[hsl(var(--foreground))]">
+                <div className="truncate text-[14px] font-semibold tracking-[-0.02em] text-[hsl(var(--foreground))]">
                   {milestone.title}
                 </div>
-                <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                <div className="mt-1 text-[9px] font-semibold uppercase tracking-[0.24em] text-slate-500">
                   {formatBoardDate(milestone.date)}
                 </div>
-              </div>
-              <div className="rounded-full border border-white/75 bg-white/80 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                Open
               </div>
             </div>
             {milestone.description ? (

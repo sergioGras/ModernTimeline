@@ -23,56 +23,140 @@
 - [x] Implement quarter-paged timeline view with next/previous navigation and active quarter indicator.
 - [x] Apply the first-pass UI layout refresh across toolbar, section rail, dialogs, timeline footer, week guides, and cluster sizing.
 - [x] Switch the top-bar scale controls and footer scroll controls to the shared button system.
+- [x] Add a visible page shell inset and regroup the toolbar into dedicated action, scale, and identity zones.
+- [x] Flatten the workspace shell into one flatter top bar, tighter section rail, and simpler dialog headers.
+- [x] Move dialog close controls into the header and rebalance footer spacing.
+- [x] Reduce chip and cluster chrome so board items read less like floating cards.
+- [x] Add more shell inset and card-like structure to the top bar and section rail.
+- [x] Rework the shell again with a flatter header row, calmer section rail, wider dialog breathing room, and a cleaner footer strip.
 
-## In Progress
+## Verified
 
-- [~] Validate the refreshed UI against screenshots and tune any remaining layout regressions.
-- [~] Review dialog body spacing after the latest footer changes.
+- [x] Local persistence helpers and board load/save flow are present in the codebase.
+- [x] Quarter-paged navigation and scrollbar sync are present in the codebase.
+- [x] Aggregate milestone clustering and the cluster selection dialog are present in the codebase.
+- [x] Shared button and dialog primitives are present in the codebase.
+- [x] `npm run build` passes on the current branch.
+
+## Active Phases
+
+### Phase 0 - Product Direction Reset
+
+- [~] Treat the current UI as open for full redesign rather than constrained by existing primitives.
+- [~] Use the swimlane timeline proposal as the main reference for future layout direction.
+- [ ] Decide whether V1 remains milestone-only or expands toward duration blocks plus milestone markers.
+- [ ] If duration blocks are adopted, define a migration path from `Milestone` to roadmap items before code changes.
+
+### Phase 1 - Shell & Header
+
+- [x] Promote the top bar to a single horizontal strip at `lg` and up.
+- [x] Remove nested card language from the header zones.
+- [ ] Verify the header stays on one row across common desktop widths.
+
+### Phase 2 - Section Rail
+
+- [x] Narrow and soften the sticky section rail.
+- [x] Add a clearer inner card and more breathing room from the left border.
+- [ ] Validate the rail still reads compact at `2`, `5`, and many sections.
+
+### Phase 3 - Dialogs
+
+- [x] Rebalance dialog widths and footer spacing.
+- [x] Move close controls into the dialog header.
+- [ ] Apply the dialog fix order below to remove clipping, border crowding, and uneven spacing.
+
+#### Dialog Fix Order
+
+1. Increase internal padding on the modal shell.
+2. Rework the footer spacing into a distinct action band.
+3. Increase vertical rhythm between labels and fields.
+4. Reduce the visual dominance of the textarea.
+5. Reposition and resize the close control.
+6. Make the form hierarchy more explicit.
+7. Soften the field chrome slightly.
+8. Rebalance the dialog width against the content density.
+
+### Phase 4 - Board Surface
+
+- [x] Simplify the footer scrollbar strip.
+- [x] Reduce chip and cluster chrome.
+- [ ] Re-check week lines and cluster spacing in quarter mode.
+
+### Phase 5 - QA
+
+- [ ] Screenshot review for shell, rail, dialogs, footer, and cluster surfaces.
+- [ ] Keyboard and focus review for icon-only controls and modal close actions.
+- [ ] Run `npm run build` after the final visual pass.
 
 ## Current Screenshot QA Findings
 
-- [!] Top toolbar controls are too close to the left viewport edge; the first button starts at `x=0` and the toolbar has no safe page inset.
-- [!] Toolbar buttons still read as old/native pills with heavy dark outlines; the intended tech-glass button system is not visually consistent in the screenshots.
-- [!] Toolbar grouping is weak: primary actions, scale toggle, and board identity feel disconnected across the full width.
-- [!] Sticky section rail content is still too close to the left viewport edge; `Projects`, `Section`, and section titles begin visually at the screen border.
-- [!] Sticky section rail has too much empty width relative to the visible content while still lacking internal breathing room at the left edge.
-- [!] Section row actions are not visible in the current row-density state, leaving no obvious edit/reorder/delete affordance from the board.
-- [!] Weekly guide lines are not visible as thin vertical lines; the visible result is a dense dotted horizontal band at row boundaries.
-- [!] Milestone clustering still allows visual collisions: aggregate chips and individual milestone chips overlap in the same row.
-- [!] Cluster chips and milestone chips have inconsistent visual weight; cluster chips appear as selected green cards rather than neutral grouped summaries.
-- [!] Bottom timeline footer is cramped at the lower-left edge; `Timeline`, `Left`, and `Right` collide visually with the viewport/plugin overlay area.
-- [!] Bottom timeline controls still look like old text buttons; they should be icon or compact controls with the same modern button language.
-- [!] Horizontal scrollbar affordance is too subtle and visually detached; it should be easier to discover with a single clear gutter.
-- [!] Add-section dialog close control is effectively invisible or misplaced; only a tiny mark appears near the top-left edge instead of a clear close affordance.
-- [!] Dialog footer buttons sit on the lower border with insufficient bottom/right padding.
-- [!] Dialog primary/secondary buttons still look like old bordered native pills in screenshots, inconsistent with the intended app style.
-- [!] Dialog inputs look flat/native and cramped; spacing and radius do not match the rest of the product UI.
-- [!] Milestone-cluster dialog list cards are oversized, heavily outlined, and too close together; they need lighter borders, better spacing, and cleaner hierarchy.
-- [!] Milestone-cluster dialog also lacks a visible close control.
+### Overall Read
 
-## Next
+- [ ] The board has the right features, but the visual system still feels unfinished and inconsistent.
+- [ ] The layout needs a broader spacing and hierarchy reset rather than small cosmetic tweaks.
+- [ ] The current shell, dialogs, and rail feel visually cramped even when the structure is technically correct.
+- [ ] Remaining screenshot feedback points to spacing and card treatment rather than missing functionality.
+- [ ] Current shared primitives are not sacred; replace or rewrite them where they keep producing cramped UI.
 
-- [ ] Add a real shell inset around the whole app surface so no control or label starts at the viewport edge.
-- [ ] Rebuild toolbar layout as three stable zones: left actions, center scale/window controls, right board identity.
-- [ ] Replace bottom `Left`/`Right` text buttons with compact icon controls or a cleaner scrollbar-only footer pattern.
-- [ ] Redesign the bottom timeline footer with enough left padding, a visible scrollbar track, and no clipped labels.
-- [ ] Rework section rail spacing: consistent left padding, tighter but usable width, and visible compact row actions.
-- [ ] Rework week guides as low-contrast vertical lines spanning the timeline body, not repeated horizontal dotted bands.
-- [ ] Fix milestone/cluster layout so clusters reserve space and do not overlap neighboring single chips.
-- [ ] Restyle aggregate cluster chips as neutral summary chips with clear count hierarchy.
-- [ ] Fix shared dialog close control placement and contrast across all dialogs.
-- [ ] Increase dialog footer padding and ensure actions are visually detached from the modal edge.
-- [ ] Restyle dialog form controls so inputs/selects/textareas match the app's modern rounded/glass language.
-- [ ] Restyle milestone-cluster dialog list items with lighter borders, better internal spacing, and no heavy black outlines.
-- [ ] Validate board behavior with 2, 5, and many sections after the layout rewrite.
-- [ ] Validate quarter paging, active quarter indicator, and manual scrollbar sync after grid/footer changes.
-- [ ] Tune row density and chip sizing across comfortable, compact, and micro states.
-- [ ] Tune cluster thresholds against realistic dense milestone data.
-- [ ] Run `npm run build` after the visual/layout implementation pass.
+### Reference Layout Direction
+
+- [ ] Explore a strict 4-lane swimlane timeline: TreePlet Core, Learning, Personal Strategic, Optional / Sandbox.
+- [ ] Preserve April to December 2026 as the main horizontal planning range, grouped by Q2, Q3, and Q4.
+- [ ] Prepare for dual encoding: solid bars for commitments, dashed/lighter bars for intentions.
+- [ ] Prepare for milestone markers as key delivery points separate from duration blocks.
+- [ ] Keep density low: about 5 to 7 major items per lane and labels around 2 to 4 words.
+- [ ] Avoid weekly task detail in the main board; the timeline should show cognitive bandwidth across the year.
+
+### Toolbar And Shell
+
+- [ ] The top bar should behave like one workspace chrome strip, not several stacked mini-cards.
+- [ ] Toolbar actions, time-scale toggle, and board identity need one cleaner hierarchy.
+- [ ] Toolbar buttons still read too much like pills and need a flatter, more deliberate treatment.
+- [ ] The page shell needs more consistent inset and less border-heavy framing.
+
+### Section Rail
+
+- [ ] Sticky section content still feels too close to the left edge.
+- [ ] The section rail uses too much width for too little useful content.
+- [ ] Section titles need a clearer hierarchy and less visual clutter.
+- [ ] Section action controls need to be simpler and more compact.
+
+### Timeline Footer
+
+- [ ] The bottom footer is cramped and collides visually with the lower-left overlay area.
+- [ ] The scrollbar is not visually prominent enough as the main horizontal navigation affordance.
+- [ ] The footer controls still look like secondary controls instead of a clean navigation strip.
+
+### Timeline Grid
+
+- [ ] Week guidance is still visually wrong; it reads like dense dotted horizontal bands instead of thin vertical week lines.
+- [ ] Milestone clustering still allows overlap between aggregate chips and single milestone chips.
+- [ ] Cluster chips need a more neutral grouped-summary look.
+
+### Dialogs
+
+- [ ] Dialog close controls need more inset and a clearer visual anchor.
+- [ ] Dialog footers need more top/bottom breathing room.
+- [ ] Dialog buttons need a flatter, less native look.
+- [ ] Dialog inputs and selects need more internal padding and a softer radius.
+- [ ] Milestone-cluster dialog cards need to be lighter and less dominant.
+
+### Active Redesign Targets
+
+- [~] Rebuild the shell as one coherent workspace frame with less nested chrome.
+- [~] Restyle the toolbar so it feels like a single command strip.
+- [~] Restyle shared buttons so they feel flatter, cleaner, and less browser-native.
+- [~] Restyle dialogs so close controls, headers, form fields, and footers share one visual language.
+- [~] Rework the section rail so it is compact, readable, and not wasteful.
+- [~] Rework timeline footer controls and scrollbar visibility.
+- [~] Rework week guides and cluster spacing so the grid is readable at a glance.
 
 ## Backlog
 
 - [ ] Zoom scale controls beyond simple month/quarter switching.
+- [ ] Duration-based roadmap blocks with commitment/intention encoding.
+- [ ] Diamond-style milestone markers over duration blocks.
+- [ ] Lane presets for TreePlet Core, Learning, Personal Strategic, and Optional / Sandbox.
 - [ ] Export and import.
 - [ ] Backend persistence.
 - [ ] Auth and collaboration.
@@ -80,11 +164,17 @@
 
 ## Known Issues / UX Review
 
-- [!] Current screenshots show layout fixes are not visually successful yet.
-- [!] Controls and labels are still too close to viewport edges.
-- [!] Multiple controls still look browser-native or old-style, especially buttons and dialog actions.
-- [!] Dialog close controls are not discoverable enough.
-- [!] Dialog footer spacing remains too tight.
-- [!] Week guide implementation needs visual correction.
-- [!] Cluster layout needs collision prevention, not only grouping.
-- [!] Adaptive row density still needs validation with 2, 5, and many sections.
+- [ ] Current screenshots show the layout is not yet production-polished.
+- [ ] The visual system needs one coherent direction across toolbar, dialogs, and board chrome.
+- [ ] Week guide rendering still needs to become clear vertical guides.
+- [ ] Cluster layout needs real collision prevention, not just grouping.
+- [ ] Adaptive row density still needs validation with 2, 5, and many sections.
+
+## Immediate Follow-up
+
+- [ ] Revisit the dialog and board redesign without assuming the current shared primitives are correct.
+- [ ] Apply the dialog fix order in `milestone-dialog.tsx` first, then mirror the same spacing system in `board-settings-dialog.tsx` and `section-dialog.tsx`.
+- [ ] Re-check the redesigned header at common desktop widths, especially `lg` layouts.
+- [ ] Validate the section rail spacing against screenshots with `2`, `5`, and many sections.
+- [ ] Re-open the dialogs and confirm the new field rhythm and footer spacing feel correct.
+- [ ] Re-run the quarter view and confirm the week guides and cluster spacing still read cleanly.

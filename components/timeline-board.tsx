@@ -17,9 +17,9 @@ import { SectionColumn } from "@/components/section-column";
 import { TimelineHeader } from "@/components/timeline-header";
 import { Button } from "@/components/ui/button";
 
-const LEFT_COLUMN_WIDTH = 260;
-const TIMELINE_HEADER_HEIGHT = 78;
-const TIMELINE_SCROLLBAR_HEIGHT = 62;
+const LEFT_COLUMN_WIDTH = 228;
+const TIMELINE_HEADER_HEIGHT = 68;
+const TIMELINE_SCROLLBAR_HEIGHT = 56;
 
 interface TimelineBoardProps {
   data: BoardData;
@@ -231,7 +231,6 @@ export function TimelineBoard({
                   <SectionColumn
                     section={section}
                     rowHeight={rowHeight}
-                    density={density.mode}
                     onEdit={onEditSection}
                     onDelete={onDeleteSection}
                     onMoveUp={onMoveSectionUp}
@@ -291,37 +290,12 @@ export function TimelineBoard({
         </div>
       </div>
       <div
-        className="grid grid-cols-[auto_auto_1fr] items-center gap-3 border-t border-[hsl(var(--border))]/70 bg-[rgba(252,250,245,0.9)] px-6 py-3 backdrop-blur-xl"
+        className="border-t border-[hsl(var(--border))]/70 bg-[rgba(252,250,245,0.92)] px-5 py-2.5 backdrop-blur-xl"
         style={{ height: TIMELINE_SCROLLBAR_HEIGHT }}
       >
-        <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Scroll</div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="secondary"
-            className="h-9 w-9 px-0"
-            onClick={() => scrollRef.current?.scrollBy({ left: -360, behavior: "smooth" })}
-            aria-label="Scroll timeline left"
-            title="Scroll left"
-          >
-            <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4">
-              <path d="M12.75 4.75 7.5 10l5.25 5.25" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
-            </svg>
-          </Button>
-          <Button
-            variant="secondary"
-            className="h-9 w-9 px-0"
-            onClick={() => scrollRef.current?.scrollBy({ left: 360, behavior: "smooth" })}
-            aria-label="Scroll timeline right"
-            title="Scroll right"
-          >
-            <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4">
-              <path d="M7.25 4.75 12.5 10l-5.25 5.25" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
-            </svg>
-          </Button>
-        </div>
         <div
           ref={scrollbarRef}
-          className="timeline-scroll min-w-0 flex-1 overflow-x-scroll overflow-y-hidden"
+          className="timeline-scroll h-full overflow-x-scroll overflow-y-hidden rounded-[0.85rem] bg-white/60 px-2 py-1.5"
           onScroll={() => {
             const bar = scrollbarRef.current;
             if (!bar) {

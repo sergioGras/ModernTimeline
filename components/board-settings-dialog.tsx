@@ -42,7 +42,7 @@ export function BoardSettingsDialog({ open, settings, onClose, onSave }: BoardSe
       title="Board settings"
       description="Set the visible date range and time scale for the roadmap board."
       footer={
-        <div className="flex items-center justify-end gap-4">
+        <div className="flex items-center justify-end gap-3">
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
@@ -50,8 +50,8 @@ export function BoardSettingsDialog({ open, settings, onClose, onSave }: BoardSe
         </div>
       }
     >
-      <div className="grid gap-7">
-        <label className="grid gap-3 text-sm font-medium text-slate-700">
+      <div className="grid gap-8">
+        <label className="grid gap-2.5 text-sm font-medium text-slate-700">
           <span>Board title</span>
           <Input
             value={draft.title}
@@ -59,8 +59,8 @@ export function BoardSettingsDialog({ open, settings, onClose, onSave }: BoardSe
             placeholder="Board title"
           />
         </label>
-        <div className="grid gap-6 border-t border-[hsl(var(--border))]/60 pt-7 sm:grid-cols-2">
-          <label className="grid gap-3 text-sm font-medium text-slate-700">
+        <div className="grid gap-6 border-t border-[hsl(var(--border))]/58 pt-8 sm:grid-cols-2">
+          <label className="grid gap-2.5 text-sm font-medium text-slate-700">
             <span>Start date</span>
             <Input
               type="date"
@@ -68,7 +68,7 @@ export function BoardSettingsDialog({ open, settings, onClose, onSave }: BoardSe
               onChange={(event) => setDraft((current) => ({ ...current, startDate: event.target.value }))}
             />
           </label>
-          <label className="grid gap-3 text-sm font-medium text-slate-700">
+          <label className="grid gap-2.5 text-sm font-medium text-slate-700">
             <span>End date</span>
             <Input
               type="date"
@@ -76,7 +76,7 @@ export function BoardSettingsDialog({ open, settings, onClose, onSave }: BoardSe
               onChange={(event) => setDraft((current) => ({ ...current, endDate: event.target.value }))}
             />
           </label>
-          <label className="grid gap-3 text-sm font-medium text-slate-700 sm:col-span-2">
+          <label className="grid gap-2.5 text-sm font-medium text-slate-700 sm:col-span-2">
             <span>Time scale</span>
             <Select
               value={draft.scale}

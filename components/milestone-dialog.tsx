@@ -89,7 +89,7 @@ export function MilestoneDialog({
               </Button>
             ) : null}
           </div>
-          <div className="flex items-center justify-end gap-4 pt-4">
+          <div className="flex items-center justify-end gap-3">
             <Button variant="secondary" onClick={onClose}>
               Cancel
             </Button>
@@ -98,8 +98,8 @@ export function MilestoneDialog({
         </div>
       }
     >
-      <div className="grid gap-7">
-        <label className="grid gap-3 text-sm font-medium text-slate-700">
+      <div className="grid gap-9">
+        <label className="grid gap-2.5 text-sm font-medium text-slate-700">
           <span>Title</span>
           <Input
             value={draft.title}
@@ -107,7 +107,7 @@ export function MilestoneDialog({
             placeholder="Internal beta review"
           />
         </label>
-        <label className="grid gap-3 text-sm font-medium text-slate-700">
+        <label className="grid gap-2.5 text-sm font-medium text-slate-700">
           <span>Description</span>
           <Textarea
             value={draft.description}
@@ -115,8 +115,8 @@ export function MilestoneDialog({
             placeholder="Add context that will be visible when editing this milestone."
           />
         </label>
-        <div className="grid gap-6 border-t border-[hsl(var(--border))]/60 pt-7 sm:grid-cols-2">
-          <label className="grid gap-3 text-sm font-medium text-slate-700">
+        <div className="grid gap-6 border-t border-[hsl(var(--border))]/58 pt-8 sm:grid-cols-2">
+          <label className="grid gap-2.5 text-sm font-medium text-slate-700">
             <span>Section</span>
             <Select
               value={draft.sectionId}
@@ -129,7 +129,7 @@ export function MilestoneDialog({
               ))}
             </Select>
           </label>
-          <label className="grid gap-3 text-sm font-medium text-slate-700">
+          <label className="grid gap-2.5 text-sm font-medium text-slate-700">
             <span>Date</span>
             <Input
               type="date"

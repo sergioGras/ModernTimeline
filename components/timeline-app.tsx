@@ -206,10 +206,72 @@ export function TimelineApp() {
   };
 
   return (
-    <main className="flex h-screen flex-col gap-4 overflow-hidden px-6 py-6 sm:px-8 lg:px-10">
-      <header className="flex min-h-[84px] flex-none items-center border-b border-[hsl(var(--border))]/80 pb-4">
-        <div className="flex w-full flex-wrap items-center gap-4">
-          <div className="flex flex-wrap items-center gap-2">
+    <main className="min-h-screen p-4 sm:p-5 lg:p-6">
+      <div className="mx-auto flex h-[calc(100vh-3rem)] w-full max-w-[1760px] flex-col overflow-hidden rounded-[2rem] border border-[hsl(var(--border))]/70 bg-[linear-gradient(180deg,rgba(252,250,245,0.9),rgba(247,243,235,0.95))] shadow-[0_18px_60px_rgba(15,23,42,0.1)] sm:h-[calc(100vh-3rem)] lg:h-[calc(100vh-4rem)]">
+        <header className="grid gap-4 border-b border-[hsl(var(--border))]/70 px-6 py-6 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-center lg:gap-5 lg:px-7 lg:py-5">
+          <div className="min-w-0">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.34em] text-slate-400">Internal roadmap</div>
+            <div className="mt-1.5 text-[1.55rem] font-semibold tracking-[-0.04em] text-[hsl(var(--foreground))] sm:text-[1.72rem]">
+              {data.settings.title}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 lg:justify-self-center">
+            <div className="flex items-center gap-1.5 rounded-[1rem] border border-[hsl(var(--border))]/70 bg-white/45 px-1.5 py-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.78)]">
+              <Button
+                type="button"
+                onClick={() => updateScale("month")}
+                variant={data.settings.scale === "month" ? "primary" : "secondary"}
+                className="h-10 px-4 text-sm"
+                aria-pressed={data.settings.scale === "month"}
+              >
+                Month
+              </Button>
+              <Button
+                type="button"
+                onClick={() => updateScale("quarter")}
+                variant={data.settings.scale === "quarter" ? "primary" : "secondary"}
+                className="h-10 px-4 text-sm"
+                aria-pressed={data.settings.scale === "quarter"}
+              >
+                Quarter
+              </Button>
+            </div>
+
+            {isQuarterMode ? (
+              <div className="flex items-center gap-1.5 rounded-[1rem] border border-[hsl(var(--border))]/70 bg-white/45 px-1.5 py-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.78)]">
+                <Button
+                  variant="ghost"
+                  className="h-10 w-10 px-0"
+                  onClick={() => moveQuarter("prev")}
+                  disabled={activeQuarterIndex === 0}
+                  aria-label="Previous quarter"
+                  title="Previous quarter"
+                >
+                  <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4">
+                    <path d="M12.75 4.75 7.5 10l5.25 5.25" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+                  </svg>
+                </Button>
+                <div className="min-w-[96px] px-3 text-center text-sm font-semibold tracking-[-0.02em] text-[hsl(var(--foreground))]">
+                  {activeQuarterLabel || "Quarter"}
+                </div>
+                <Button
+                  variant="ghost"
+                  className="h-10 w-10 px-0"
+                  onClick={() => moveQuarter("next")}
+                  disabled={activeQuarterIndex >= Math.max(quarterBuckets.length - 1, 0)}
+                  aria-label="Next quarter"
+                  title="Next quarter"
+                >
+                  <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4">
+                    <path d="M7.25 4.75 12.5 10l-5.25 5.25" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+                  </svg>
+                </Button>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 lg:justify-self-end">
             <Button variant="secondary" onClick={() => setSettingsOpen(true)}>
               Board settings
             </Button>
@@ -232,145 +294,83 @@ export function TimelineApp() {
               Add milestone
             </Button>
           </div>
+        </header>
 
-          <div className="flex items-center rounded-[1rem] border border-white/68 bg-[linear-gradient(180deg,rgba(255,255,255,0.86),rgba(247,243,235,0.64))] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_10px_22px_rgba(15,23,42,0.06)] backdrop-blur-xl">
-            <Button
-              type="button"
-              onClick={() => updateScale("month")}
-              variant={data.settings.scale === "month" ? "primary" : "secondary"}
-              className="h-10 px-4 text-sm"
-              aria-pressed={data.settings.scale === "month"}
-            >
-              Month
-            </Button>
-            <Button
-              type="button"
-              onClick={() => updateScale("quarter")}
-              variant={data.settings.scale === "quarter" ? "primary" : "secondary"}
-              className="h-10 px-4 text-sm"
-              aria-pressed={data.settings.scale === "quarter"}
-            >
-              Quarter
-            </Button>
+        <section className="relative min-h-0 flex-1 px-2 pb-2 pt-0 sm:px-3 sm:pb-3">
+          <div className="h-full">
+            <TimelineBoard
+              data={data}
+              onEditMilestone={(milestone) => {
+                setEditingMilestone(milestone);
+                setMilestoneDialogOpen(true);
+              }}
+              onOpenCluster={(cluster) => {
+                setActiveCluster(cluster);
+                setClusterDialogOpen(true);
+              }}
+              onEditSection={(section) => {
+                setEditingSection(section);
+                setSectionDialogOpen(true);
+              }}
+              onDeleteSection={deleteSection}
+              onMoveSectionUp={(sectionId) => moveSection(sectionId, "up")}
+              onMoveSectionDown={(sectionId) => moveSection(sectionId, "down")}
+              activeQuarterIndex={activeQuarterIndex}
+              onQuarterIndexChange={setActiveQuarterIndex}
+            />
           </div>
+        </section>
 
-          {isQuarterMode ? (
-            <div className="flex items-center rounded-[1rem] border border-white/68 bg-[linear-gradient(180deg,rgba(255,255,255,0.86),rgba(247,243,235,0.64))] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_10px_22px_rgba(15,23,42,0.06)] backdrop-blur-xl">
-              <Button
-                variant="ghost"
-                className="h-10 w-10 px-0"
-                onClick={() => moveQuarter("prev")}
-                disabled={activeQuarterIndex === 0}
-                aria-label="Previous quarter"
-                title="Previous quarter"
-              >
-                <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4">
-                  <path d="M12.75 4.75 7.5 10l5.25 5.25" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
-                </svg>
-              </Button>
-              <div className="min-w-[92px] px-3 text-center text-sm font-semibold tracking-[-0.02em] text-[hsl(var(--foreground))]">
-                {activeQuarterLabel || "Quarter"}
-              </div>
-              <Button
-                variant="ghost"
-                className="h-10 w-10 px-0"
-                onClick={() => moveQuarter("next")}
-                disabled={activeQuarterIndex >= Math.max(quarterBuckets.length - 1, 0)}
-                aria-label="Next quarter"
-                title="Next quarter"
-              >
-                <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4">
-                  <path d="M7.25 4.75 12.5 10l-5.25 5.25" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
-                </svg>
-              </Button>
-            </div>
-          ) : null}
+        <BoardSettingsDialog
+          open={settingsOpen}
+          settings={data.settings}
+          onClose={() => setSettingsOpen(false)}
+          onSave={updateSettings}
+        />
 
-          <div className="ml-auto min-w-[190px] text-right">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-              Timeline board
-            </div>
-            <div className="mt-1 text-sm font-semibold tracking-[-0.02em] text-[hsl(var(--foreground))]">
-              {data.settings.title}
-            </div>
-          </div>
-        </div>
-      </header>
+        <SectionDialog
+          open={sectionDialogOpen}
+          section={editingSection}
+          onClose={() => {
+            setSectionDialogOpen(false);
+            setEditingSection(null);
+          }}
+          onSave={saveSection}
+        />
 
-      <section className="relative min-h-0 flex-1">
-        <div className="h-full">
-          <TimelineBoard
-            data={data}
-            onEditMilestone={(milestone) => {
-              setEditingMilestone(milestone);
-              setMilestoneDialogOpen(true);
-            }}
-            onOpenCluster={(cluster) => {
-              setActiveCluster(cluster);
-              setClusterDialogOpen(true);
-            }}
-            onEditSection={(section) => {
-              setEditingSection(section);
-              setSectionDialogOpen(true);
-            }}
-            onDeleteSection={deleteSection}
-            onMoveSectionUp={(sectionId) => moveSection(sectionId, "up")}
-            onMoveSectionDown={(sectionId) => moveSection(sectionId, "down")}
-            activeQuarterIndex={activeQuarterIndex}
-            onQuarterIndexChange={setActiveQuarterIndex}
-          />
-        </div>
-      </section>
+        <MilestoneDialog
+          open={milestoneDialogOpen}
+          milestone={editingMilestone}
+          sections={orderedSections}
+          defaultSectionId={orderedSections[0]?.id}
+          onClose={() => {
+            setMilestoneDialogOpen(false);
+            setEditingMilestone(null);
+          }}
+          onSave={saveMilestone}
+          onDelete={deleteMilestone}
+        />
 
-      <BoardSettingsDialog
-        open={settingsOpen}
-        settings={data.settings}
-        onClose={() => setSettingsOpen(false)}
-        onSave={updateSettings}
-      />
-
-      <SectionDialog
-        open={sectionDialogOpen}
-        section={editingSection}
-        onClose={() => {
-          setSectionDialogOpen(false);
-          setEditingSection(null);
-        }}
-        onSave={saveSection}
-      />
-
-      <MilestoneDialog
-        open={milestoneDialogOpen}
-        milestone={editingMilestone}
-        sections={orderedSections}
-        defaultSectionId={orderedSections[0]?.id}
-        onClose={() => {
-          setMilestoneDialogOpen(false);
-          setEditingMilestone(null);
-        }}
-        onSave={saveMilestone}
-        onDelete={deleteMilestone}
-      />
-
-      <MilestoneClusterDialog
-        open={clusterDialogOpen}
-        milestones={activeCluster?.milestones ?? []}
-        sectionTitle={
-          activeCluster
-            ? orderedSections.find((section) => section.id === activeCluster.milestones[0]?.sectionId)?.title
-            : undefined
-        }
-        onClose={() => {
-          setClusterDialogOpen(false);
-          setActiveCluster(null);
-        }}
-        onSelect={(milestone) => {
-          setClusterDialogOpen(false);
-          setActiveCluster(null);
-          setEditingMilestone(milestone);
-          setMilestoneDialogOpen(true);
-        }}
-      />
+        <MilestoneClusterDialog
+          open={clusterDialogOpen}
+          milestones={activeCluster?.milestones ?? []}
+          sectionTitle={
+            activeCluster
+              ? orderedSections.find((section) => section.id === activeCluster.milestones[0]?.sectionId)?.title
+              : undefined
+          }
+          onClose={() => {
+            setClusterDialogOpen(false);
+            setActiveCluster(null);
+          }}
+          onSelect={(milestone) => {
+            setClusterDialogOpen(false);
+            setActiveCluster(null);
+            setEditingMilestone(milestone);
+            setMilestoneDialogOpen(true);
+          }}
+        />
+      </div>
     </main>
   );
 }

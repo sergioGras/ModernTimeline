@@ -2,6 +2,14 @@
 
 ## 2026-04-26
 
+- `Decision`: Treat the current UI primitives and layout as replaceable during the active redesign stage.
+  - `Rationale`: Recent screenshots show structural UI issues. Hard rules that force the current shared primitives can preserve the wrong visual system.
+  - `Status`: Accepted
+
+- `Decision`: Use the 4-lane swimlane roadmap proposal as a reference direction, not an immediate schema change.
+  - `Rationale`: The proposal better matches the intended strategic planning use case, but duration blocks require a deliberate data-model decision.
+  - `Status`: Accepted
+
 - `Decision`: Use `localStorage` only for V1 persistence.
   - `Rationale`: Keeps the app local-first and simple to operate.
   - `Status`: Accepted
